@@ -3,7 +3,6 @@ const test = require('tape')
 const accumulate = require('./')
 const gulp = require('gulp')
 const Vinyl = require('vinyl')
-const through2 = require('through2')
 
 test('it accumulates the files in `files` property', t => {
   t.plan(5)

@@ -4,6 +4,7 @@
   "description": "Accumulates input vinyls and appends them as data",
   "main": "index.js",
   "scripts": {
+    "lint": "standard",
     "test": "tape test.js",
     "cov": "nyc --reporter=lcov npm run test",
     "codecov": "npm run cov && codecov"
@@ -28,7 +29,6 @@
   "homepage": "https://github.com/kt3k/vinyl-accumulate#readme",
   "dependencies": {
     "debounce": "^1.0.0",
-    "duplexify": "^3.4.5",
     "vinyl": "^1.2.0"
   },
   "devDependencies": {

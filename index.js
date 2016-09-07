@@ -1,11 +1,8 @@
 'use strict'
 
 const stream = require('stream')
-const Writable = stream.Writable
-const Readable = stream.Readable
 const Vinyl = require('vinyl')
 const debounce = require('debounce')
-const duplexify = require('duplexify')
 
 const PROPERTY_NAME = 'files'
 const DEBOUNCE_DURATION = 500
@@ -34,34 +31,30 @@ module.exports = (filename, options) => {
 
   let resolved = createResolver()
 
-  const vinylIn = new Writable({
-    write (file, enc, cb) {
-      file = file.clone()
-      file._isVinyl = true
+  const duplex = new stream.Duplex({objectMode: true})
 
-      if (!firstFile) {
-        firstFile = file
-      }
+  duplex._write = (file, enc, cb) => {
+    file = file.clone()
+    file._isVinyl = true
 
-      files[file.path] = file
-      cb(null, file)
+    if (!firstFile) {
+      firstFile = file
+    }
 
-      if (useDebounce) {
-        resolveFileDebounce()
-      }
-    },
-    objectMode: true
-  })
-  
-  const vinylOut = new Readable({
-    read () {
-      resolved.then(file => {
-        resolved = createResolver()
-        this.push(file)
-      })
-    },
-    objectMode: true
-  })
+    files[file.path] = file
+    cb(null, file)
+
+    if (useDebounce) {
+      resolveFileDebounce()
+    }
+  }
+
+  duplex._read = function () {
+    resolved.then(file => {
+      resolved = createResolver()
+      this.push(file)
+    })
+  }
 
   const resolveFile = () => {
     const file = new Vinyl({
@@ -76,9 +69,9 @@ module.exports = (filename, options) => {
     resolver(file)
   }
 
-  vinylIn.on('finish', resolveFile)
+  duplex.on('finish', resolveFile)
 
   const resolveFileDebounce = debounce(resolveFile, debounceDuration)
 
-  return duplexify.obj(vinylIn, vinylOut)
+  return duplex
 }
