@@ -18,20 +18,21 @@ const Vinly = require('vinyl')
 
 gulp.src('src/**/*.md')
   .pipe(frontMatter())
-  .pipe(accumulate('index.html'))
+  .pipe(accumulate('index.html')) // Specifies the name of the output file.
   .pipe(through2.obj((file, _, cb) => {
-    console.log(file.files) // => list of all files from the upstream
+    console.log(file.files) // => `file.files` is the list of all files from the upstream
+                            // The property name `files` is configurable by the `property` option.
 
     // Whatever you want to do about list of all files in the stream
 
     file.contents = ... // You need to set the result contents here.
 
-    cb(file)
+    cb(null, file)
   })
   .pipe(gulp.dest('dest'))
 ```
 
-`accumulate()` accumulates all the input files and append them to the empty file named `index.html` and then outputs it. You can perform operations on the list of files in the stream. This is useful, for example, when you want to create index page from the given list of files.
+`accumulate()` accumulates all the input files and append them to the empty file of the given name (in this case `index.html`) and then outputs it. You can perform operations on the list of files in the stream. This is useful, for example, when you want to create index page from the given list of files.
 
 # API
 
@@ -42,9 +43,9 @@ const accumulate = require('vinyl-accumulate')
 ## accumulate(filename, options)
 
 - @param {string} filename The filename
-- @param {string} property The name of the property of accumulated files. Default is `files`.
-- @param {boolean} debounce If true then this outputs accumulated files with the period of duration. Default is false. If false, then this outputs the vinyl only when the stream ends. This option is useful when your vinyl stream never ends (like in [bulbo][bulbo]).
-- @param {number} debounceDuration The duration of debounce in milliseconds. Only has effects `debounce` option is true. Default is 500.
+- @param {string} [options.property] The name of the property of accumulated files. Default is `files`.
+- @param {boolean} debounce If true, then this stream debounces the input, accumulates them while they are streaming continuously and finally outputs it when the stream stops streaming for a while (= `debounceDuration`). If false, it accumulates all the files until the end of the stream and output only once at the end. Default is false. This option is useful when you handle the vinyl stream which never ends (like in [bulbo][bulbo]).
+- @param {number} debounceDuration The duration of debounce in milliseconds. This only has effects when `debounce` option is true. Default is 500.
 
 # License
 
