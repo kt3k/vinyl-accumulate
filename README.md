@@ -48,8 +48,8 @@ const accumulate = require('vinyl-accumulate')
 
 - @param {string} filename The filename
 - @param {string} [options.property] The name of the property of accumulated files. Default is `files`.
-- @param {boolean} debounce If true, then this stream debounces the input, accumulates them while they are streaming continuously and finally outputs it when the stream stops streaming for a while (= `debounceDuration`). If false, it accumulates all the files until the end of the stream and output only once at the end. Default is false. This option is useful when you handle the vinyl stream which never ends (like in [bulbo][bulbo]).
-- @param {number} debounceDuration The duration of debounce in milliseconds. This only has effects when `debounce` option is true. Default is 500.
+- @param {boolean} [options.debounce] If true, then this stream debounces the input, accumulates them while they are streaming continuously and finally outputs it when the stream stops streaming for a while (= `debounceDuration`). If false, it accumulates all the files until the end of the stream and output only once at the end. Default is false. This option is useful when you handle the vinyl stream which never ends (like in [bulbo][bulbo]).
+- @param {number} [options.debounceDuration] The duration of debounce in milliseconds. This only has effects when `debounce` option is true. Default is 500.
 
 # License
 
