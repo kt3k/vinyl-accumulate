@@ -1,6 +1,6 @@
 # vinyl-accumulate v0.1.0
 
-> Accumulates input vinyls and appends them as data
+> Accumulates input vinyls and appends them to the output.
 
 # Install
 
