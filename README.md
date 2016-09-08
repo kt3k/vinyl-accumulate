@@ -1,5 +1,9 @@
 # vinyl-accumulate v0.1.0
 
+[![CircleCI](https://circleci.com/gh/kt3k/vinyl-accumulate.svg?style=svg)](https://circleci.com/gh/kt3k/vinyl-accumulate)
+[![codecov](https://codecov.io/gh/kt3k/vinyl-accumulate/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/vinyl-accumulate)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+
 > Accumulates input vinyls and appends them to the output.
 
 # Install
