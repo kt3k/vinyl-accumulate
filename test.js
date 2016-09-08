@@ -1,7 +1,7 @@
 'use strict'
 const test = require('tape')
 const accumulate = require('./')
-const gulp = require('gulp')
+const gulp = require('vinyl-fs')
 const Vinyl = require('vinyl')
 
 test('it accumulates the files in `files` property', t => {

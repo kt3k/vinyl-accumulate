@@ -2,76 +2,52 @@
 
 const stream = require('stream')
 const Vinyl = require('vinyl')
-const debounce = require('debounce')
+const debouncer = require('./lib/stream-debouncer')
+const duplexify = require('duplexify')
 
 const PROPERTY_NAME = 'files'
-const DEBOUNCE_DURATION = 500
 
 /**
  * Accumulates the input files and outputs an empty file with the collected files appended.
  * @param {string} filename The output filename
  * @param {object} options The options
+ * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
+ * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
+ * @param {string} property The property name which the accumulated files are set to.
  */
 module.exports = (filename, options) => {
   if (typeof filename !== 'string') {
     throw new Error('filename must be a string')
   }
 
-  options = options || []
-  let firstFile = null
-  let resolver = null
+  options = options || {}
+
   const files = {}
   const property = options.property || PROPERTY_NAME
-  const useDebounce = options.debounce || false
-  const debounceDuration = options.debounceDuration || DEBOUNCE_DURATION
+  const duration = options.debounce ? options.debounceDuration : Infinity
 
-  const createResolver = () => new Promise(resolve => {
-    resolver = resolve
+  const input = stream.Transform({
+    objectMode: true,
+
+    transform (file, enc, cb) {
+      cb(null, files[file.path] = file.clone())
+    }
   })
 
-  let resolved = createResolver()
-
-  const duplex = new stream.Duplex({objectMode: true})
-
-  duplex._write = (file, enc, cb) => {
-    file = file.clone()
-    file._isVinyl = true
-
-    if (!firstFile) {
-      firstFile = file
+  const output = stream.Transform({
+    objectMode: true,
+    transform (lastFile, enc, cb) {
+      cb(null, new Vinyl({
+        cwd: lastFile.cwd,
+        base: lastFile.base,
+        path: lastFile.base + filename,
+        contents: new Buffer(''),
+        [property]: Object.keys(files).map(key => files[key])
+      }))
     }
+  })
 
-    files[file.path] = file
-    cb(null, file)
+  input.pipe(debouncer.obj({duration})).pipe(output)
 
-    if (useDebounce) {
-      resolveFileDebounce()
-    }
-  }
-
-  duplex._read = function () {
-    resolved.then(file => {
-      resolved = createResolver()
-      this.push(file)
-    })
-  }
-
-  const resolveFile = () => {
-    const file = new Vinyl({
-      cwd: firstFile.cwd,
-      base: firstFile.base,
-      path: firstFile.base + filename,
-      contents: new Buffer('')
-    })
-
-    file[property] = Object.keys(files).map(key => files[key])
-
-    resolver(file)
-  }
-
-  duplex.on('finish', resolveFile)
-
-  const resolveFileDebounce = debounce(resolveFile, debounceDuration)
-
-  return duplex
+  return duplexify.obj(input, output)
 }

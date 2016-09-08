@@ -29,13 +29,14 @@
   "homepage": "https://github.com/kt3k/vinyl-accumulate#readme",
   "dependencies": {
     "debounce": "^1.0.0",
+    "duplexify": "^3.4.5",
     "vinyl": "^1.2.0"
   },
   "devDependencies": {
     "codecov": "^1.0.1",
-    "gulp": "^3.9.1",
     "nyc": "^8.1.0",
     "standard": "^8.0.0",
-    "tape": "^4.6.0"
+    "tape": "^4.6.0",
+    "vinyl-fs": "^2.4.3"
   }
 }
