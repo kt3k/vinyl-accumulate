@@ -1,6 +1,6 @@
 {
   "name": "vinyl-accumulate",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Accumulates input vinyls and appends them to the output.",
   "main": "index.js",
   "scripts": {
