@@ -30,7 +30,7 @@
   "dependencies": {
     "debounce": "^1.0.0",
     "duplexify": "^3.4.5",
-    "vinyl": "^1.2.0"
+    "vinyl": "^2.0.0"
   },
   "devDependencies": {
     "codecov": "^1.0.1",
