@@ -3,6 +3,7 @@
 const stream = require('stream')
 const Vinyl = require('vinyl')
 const debouncer = require('./lib/stream-debouncer')
+const values = require('./lib/values')
 const duplexer2 = require('duplexer2')
 const path = require('path')
 
@@ -27,13 +28,15 @@ const one = (filename, options) => {
 
   return accumulate(files => stream.Transform({
     objectMode: true,
-    transform: (lastFile, enc, cb) => cb(null, new Vinyl({
-      cwd: lastFile.cwd,
-      base: lastFile.base,
-      path: path.join(lastFile.base, filename),
-      contents: new Buffer(''),
-      [property]: Object.keys(files).map(key => files[key])
-    }))
+    transform (lastFile, enc, cb) {
+      cb(null, new Vinyl({
+        cwd: lastFile.cwd,
+        base: lastFile.base,
+        path: path.join(lastFile.base, filename),
+        contents: Buffer([]),
+        [property]: values(files)
+      }))
+    }
   }), options)
 }
 
@@ -51,12 +54,9 @@ const through = options => {
   return accumulate(files => stream.Transform({
     objectMode,
     transform (lastFile, enc, cb) {
-      const keys = Object.keys(files)
-      const fileList = keys.map(key => files[key])
+      const fileList = values(files)
+      fileList.forEach(file => this.push(Object.assign(file, {[property]: fileList})))
 
-      keys.forEach(key => {
-        this.push(Object.assign(files[key], {[property]: fileList}))
-      })
       cb()
     }
   }), options)
@@ -78,9 +78,7 @@ const accumulate = (outputTransform, options) => {
     }
   })
 
-  const output = outputTransform(files)
-
-  input.pipe(debouncer.obj({duration})).pipe(output)
+  const output = input.pipe(debouncer.obj({duration})).pipe(outputTransform(files))
 
   return duplexer2({objectMode}, input, output)
 }
