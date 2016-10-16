@@ -29,7 +29,7 @@
   "homepage": "https://github.com/kt3k/vinyl-accumulate#readme",
   "dependencies": {
     "debounce": "^1.0.0",
-    "duplexify": "^3.4.5",
+    "duplexer2": "^0.1.4",
     "vinyl": "^2.0.0"
   },
   "devDependencies": {

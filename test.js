@@ -51,3 +51,14 @@ test('it throws if the filename is not a string', t => {
     accumulate(null)
   })
 })
+
+test('accumulate.through passes through the input but appends accumulated files to each file', t => {
+  t.plan(4)
+
+  gulp.src('test/fixture/*.md')
+    .pipe(accumulate.through())
+    .on('data', file => {
+      t.ok(Vinyl.isVinyl(file))
+      t.equal(file.files.length, 2)
+    })
+})

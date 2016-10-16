@@ -502,7 +502,13 @@ doctrine@^1.2.2:
     esutils "^2.0.2"
     isarray "^1.0.0"
 
-duplexify@^3.2.0, duplexify@^3.4.5:
+duplexer2:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/duplexer2/-/duplexer2-0.1.4.tgz#8b12dab878c0d69e3e7891051662a32fc6bddcc1"
+  dependencies:
+    readable-stream "^2.0.2"
+
+duplexify@^3.2.0:
   version "3.4.5"
   resolved "https://registry.yarnpkg.com/duplexify/-/duplexify-3.4.5.tgz#0e7e287a775af753bf57e6e7b7f21f183f6c3a53"
   dependencies:
@@ -1760,7 +1766,7 @@ read-pkg@^1.0.0:
     normalize-package-data "^2.3.2"
     path-type "^1.0.0"
 
-readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.4, readable-stream@^2.0.5:
+readable-stream@^2.0.0, readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.0.4, readable-stream@^2.0.5:
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-2.1.5.tgz#66fa8b720e1438b364681f2ad1a63c618448c9d0"
   dependencies:
