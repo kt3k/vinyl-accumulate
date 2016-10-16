@@ -22,22 +22,12 @@ const one = (filename, options) => {
     throw new Error('filename must be a string')
   }
 
-  options = options || {}
-
-  const property = options.property || PROPERTY_NAME
-
-  return accumulate(files => stream.Transform({
-    objectMode: true,
-    transform (lastFile, enc, cb) {
-      cb(null, new Vinyl({
-        cwd: lastFile.cwd,
-        base: lastFile.base,
-        path: path.join(lastFile.base, filename),
-        contents: Buffer([]),
-        [property]: values(files)
-      }))
-    }
-  }), options)
+  return accumulate((files, lastFile) => [new Vinyl({
+    cwd: lastFile.cwd,
+    base: lastFile.base,
+    path: path.join(lastFile.base, filename),
+    contents: Buffer([])
+  })], options)
 }
 
 /**
@@ -46,29 +36,18 @@ const one = (filename, options) => {
  * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
  * @param {string} options.property The property to set the file list
  */
-const through = options => {
-  options = options || {}
-
-  const property = options.property || PROPERTY_NAME
-
-  return accumulate(files => stream.Transform({
-    objectMode,
-    transform (lastFile, enc, cb) {
-      const fileList = values(files)
-      fileList.forEach(file => this.push(Object.assign(file, {[property]: fileList})))
-
-      cb()
-    }
-  }), options)
-}
+const through = options => accumulate(files => files, options)
 
 /**
- * @param {(files: Object) => Duplex} outputTransform The transformation of the output
+ * @param {(files: Vinyl[]) => Vinyl[]} generateFiles The generator of the output
  * @param {Object} options The options
  */
-const accumulate = (outputTransform, options) => {
+const accumulate = (generateFiles, options) => {
+  options = options || {}
+
   const files = {}
   const duration = options.debounce ? options.debounceDuration : Infinity
+  const property = options.property || PROPERTY_NAME
 
   const input = stream.Transform({
     objectMode,
@@ -78,7 +57,20 @@ const accumulate = (outputTransform, options) => {
     }
   })
 
-  const output = input.pipe(debouncer.obj({duration})).pipe(outputTransform(files))
+  const output = stream.Transform({
+    objectMode,
+    transform (lastFile, enc, cb) {
+      const accumulated = values(files)
+
+      generateFiles(accumulated, lastFile).forEach(file => {
+        this.push(Object.assign(file.clone(), {[property]: accumulated}))
+      })
+
+      cb()
+    }
+  })
+
+  input.pipe(debouncer.obj({duration})).pipe(output)
 
   return duplexer2({objectMode}, input, output)
 }
