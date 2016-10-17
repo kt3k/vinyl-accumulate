@@ -12,31 +12,54 @@
 
 # Usage
 
-See `gulpfile.js` like the below:
+Create `gulpfile.js` like the below:
 
 ```js
 const gulp = require('gulp')
 const frontMatter = require('gulp-front-matter')
 const accumulate = require('vinyl-accumulate')
-const Vinly = require('vinyl')
 
 gulp.src('src/**/*.md')
   .pipe(frontMatter())
-  .pipe(accumulate('index.html')) // Specifies the name of the output file.
-  .pipe(through2.obj((file, _, cb) => {
-    console.log(file.files) // => `file.files` is the list of all files from the upstream
-                            // The property name `files` is configurable by the `property` option.
-
-    // Whatever you want to do about list of all files in the stream
-
-    file.contents = ... // You need to set the result contents here.
-
-    cb(null, file)
-  })
+  .pipe(accumulate('index.html'))
+  .pipe(anyTransform())
   .pipe(gulp.dest('dest'))
 ```
 
-`accumulate()` accumulates all the input files and append them to the empty file of the given name (in this case `index.html`) and then outputs it. You can perform operations on the list of files in the stream. This is useful, for example, when you want to create index page from the given list of files.
+Then all the input files are accumulated into one file called `index.html` (The contents is empty) at `accumulated` node. The output file has `.files` property which is the array of the all input files.
+
+For example, you can use it like the below:
+
+```js
+gulp.src('src/**/*.md')
+  .pipe(frontMatter())
+  .pipe(accumulate('index.html'))
+  .pipe(through2.obj((file, enc, cb) => {
+    file.files.forEach(inputFile => {
+      // Concatenates all the input file's contents.
+      file.contents = Buffer.concat([file.contents, inputFile.contents])
+    })
+
+    cb(null, file)
+  }))
+  .pipe(gulp.dest('dest'))
+```
+
+Then you get `dest/index.html` whose contents is the concatenation of `src/**/*.md`.
+
+## Passes all the input files
+
+There is another API called `accumulate.through`:
+
+```js
+gulp.src('src/**/*.md')
+  .pipe(frontMatter())
+  .pipe(accumulate.through())
+  .pipe(anyTransform)
+  .pipe(gulp.dest('dest'))
+```
+
+`accumulate.through()` passes through all the input files but appending all the input files to each file at the property `.files`.
 
 # API
 
