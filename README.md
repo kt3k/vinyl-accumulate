@@ -61,6 +61,33 @@ gulp.src('src/**/*.md')
 
 `accumulate.through()` passes through all the input files but appending all the input files to each file at the property `.files`.
 
+## Sort the accumulated files
+
+Pass the sort function to sort option and the result is sorted by it.
+
+```js
+gulp.src('src/**/*.md')
+  .pipe(frontMatter())
+  .pipe(accumulate.through({sort: (x, y) => x.frontMatter.date - y.frontMatter.date}))
+  .pipe(anyTransform)
+  .pipe(gulp.dest('dest'))
+```
+
+The above example sorts the output `files` in the ascending order of the date front-matter property.
+
+## Accumulate vinyls over a stream without the end
+
+By default, `vinyl-accumulate` emits the output when the input stream ends. (This is fine when you works with gulp because streams always end in gulp.) If you need to use this module with streams without end like in `bulbo`, you need to use `debounce` options. It debounces the input stream with the given `debounceDuration` (default: 500ms) and outputs after that duration.
+
+```js
+const bulbo = require('bulbo')
+
+bulbo.asset('src/**/*.md')
+  .pipe(frontMatter())
+  .pipe(accumulate.through({debounce: true})
+  .pipe(anyTransform)
+```
+
 # API
 
 ```js
