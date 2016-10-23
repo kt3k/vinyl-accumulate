@@ -16,6 +16,7 @@ const objectMode = true
  * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
  * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
  * @param {string} property The property name which the accumulated files are set to.
+ * @param {Function} sort The sort function. If specified, then the accumulated files are sorted by this function. Optional.
  */
 const one = (filename, options) => {
   if (typeof filename !== 'string') {
@@ -35,6 +36,7 @@ const one = (filename, options) => {
  * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
  * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
  * @param {string} options.property The property to set the file list
+ * @param {Function} sort The sort function. If specified, then the accumulated files are sorted by this function. Optional.
  */
 const through = options => accumulate(files => files, options)
 
@@ -48,6 +50,7 @@ const accumulate = (generateFiles, options) => {
   const files = {}
   const duration = options.debounce ? options.debounceDuration : Infinity
   const property = options.property || PROPERTY_NAME
+  const sortFunc = options.sort
 
   const input = stream.Transform({
     objectMode,
@@ -62,8 +65,18 @@ const accumulate = (generateFiles, options) => {
     transform (lastFile, enc, cb) {
       const accumulated = values(files)
 
+      if (sortFunc) {
+        try {
+          accumulated.sort(sortFunc)
+        } catch (e) {
+          cb(e)
+          return
+        }
+      }
+
       generateFiles(accumulated, lastFile).forEach(file => {
-        this.push(Object.assign(file.clone(), {[property]: accumulated}))
+        // Creates the shallow copy of the accumulated each time just in case
+        this.push(Object.assign(file.clone(), {[property]: accumulated.slice(0)}))
       })
 
       cb()

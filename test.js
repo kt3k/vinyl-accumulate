@@ -3,6 +3,7 @@ const test = require('tape')
 const accumulate = require('./')
 const gulp = require('vinyl-fs')
 const Vinyl = require('vinyl')
+const fm = require('gulp-front-matter')
 
 test('it accumulates the files in `files` property', t => {
   t.plan(5)
@@ -60,5 +61,29 @@ test('accumulate.through passes through the input but appends accumulated files 
     .on('data', file => {
       t.ok(Vinyl.isVinyl(file))
       t.equal(file.files.length, 2)
+    })
+})
+
+test('If the sort option is given, the result files are sorted by it', t => {
+  t.plan(3)
+
+  gulp.src('test/fixture/*.md')
+    .pipe(fm({property: 'fm'}))
+    .pipe(accumulate('test.html', {sort: (x, y) => y.fm.date - x.fm.date}))
+    .on('data', file => {
+      t.ok(Vinyl.isVinyl(file))
+      t.equal(file.files[0].fm.name, 'bar')
+      t.equal(file.files[1].fm.name, 'foo')
+    })
+})
+
+test('If the sort option is given and it throws while sorting, then the stream emits the error', t => {
+  t.plan(2)
+
+  gulp.src('test/fixture/*.md')
+    .pipe(accumulate('test.html', {sort: (x, y) => y.fm.date - x.fm.date}))
+    .on('error', e => {
+      t.ok(e instanceof Error)
+      t.ok(/TypeError/.test(e.toString()))
     })
 })
