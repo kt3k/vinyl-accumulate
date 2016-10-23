@@ -30,6 +30,7 @@
   "dependencies": {
     "debounce": "^1.0.0",
     "duplexer2": "^0.1.4",
+    "gulp-front-matter": "^1.3.0",
     "vinyl": "^2.0.0"
   },
   "devDependencies": {
