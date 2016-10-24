@@ -109,6 +109,10 @@ Passes through all the input. Appends accumulated files to each file at the give
 - @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
 - @param {string} options.property The property to set the file list
 
+# History
+
+- 2016-10-23   v1.2.0   Added sort option.
+
 # License
 
 MIT
