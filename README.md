@@ -1,4 +1,4 @@
-# vinyl-accumulate v1.3.0
+# vinyl-accumulate v1.3.1
 
 [![CircleCI](https://circleci.com/gh/kt3k/vinyl-accumulate.svg?style=svg)](https://circleci.com/gh/kt3k/vinyl-accumulate)
 [![codecov](https://codecov.io/gh/kt3k/vinyl-accumulate/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/vinyl-accumulate)
