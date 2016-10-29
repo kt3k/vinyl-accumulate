@@ -6,6 +6,8 @@ const debouncer = require('./lib/stream-debouncer')
 const values = require('./lib/values')
 const duplexer2 = require('duplexer2')
 const path = require('path')
+const vfs = require('vinyl-fs')
+const concate = require('concat-stream')
 
 const PROPERTY_NAME = 'files'
 const objectMode = true
@@ -41,6 +43,23 @@ const one = (filename, options) => {
 const through = options => accumulate(files => files, options)
 
 /**
+ * Accumulates the input files and outputs an empty file with the collected files appended.
+ * @param {string} glob The glob file pattern
+ * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
+ * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
+ * @param {string} property The property name which the accumulated files are set to.
+ * @param {Function} sort The sort function. If specified, then the accumulated files are sorted by this function. Optional.
+ */
+const src = (glob, optioins) => accumulate(files => {
+  return new Promise((resolve, reject) => {
+    vfs.src(glob)
+      .pipe(one('dummy-file'))
+      .on('data', file => resolve(file.files))
+      .on('error', e => reject(e))
+  })
+})
+
+/**
  * @param {(files: Vinyl[]) => Vinyl[]} generateFiles The generator of the output
  * @param {Object} options The options
  */
@@ -74,12 +93,14 @@ const accumulate = (generateFiles, options) => {
         }
       }
 
-      generateFiles(accumulated, lastFile).forEach(file => {
-        // Creates the shallow copy of the accumulated each time just in case
-        this.push(Object.assign(file.clone(), {[property]: accumulated.slice(0)}))
-      })
+      Promise.resolve(generateFiles(accumulated, lastFile)).then(files => {
+        files.forEach(file => {
+          // Creates the shallow copy of the accumulated each time just in case
+          this.push(Object.assign(file.clone(), {[property]: accumulated.slice(0)}))
+        })
 
-      cb()
+        cb()
+      }).catch(cb)
     }
   })
 
@@ -91,3 +112,4 @@ const accumulate = (generateFiles, options) => {
 module.exports = one
 module.exports.one = one
 module.exports.through = through
+module.exports.src = src

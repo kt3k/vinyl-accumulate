@@ -4,6 +4,7 @@ const accumulate = require('./')
 const gulp = require('vinyl-fs')
 const Vinyl = require('vinyl')
 const fm = require('gulp-front-matter')
+const concat = require('concat-stream')
 
 test('it accumulates the files in `files` property', t => {
   t.plan(5)
@@ -85,5 +86,15 @@ test('If the sort option is given and it throws while sorting, then the stream e
     .on('error', e => {
       t.ok(e instanceof Error)
       t.ok(/TypeError/.test(e.toString()))
+    })
+})
+
+test('accumulate.src accumulates the files and create new streams from the given glob pattern', t => {
+  t.plan(1)
+
+  gulp.src('test/fixture/*.md')
+    .pipe(accumulate.src('test/fixture/foo.md'))
+    .on('data', file => {
+      t.equal(file.files.length, 2)
     })
 })

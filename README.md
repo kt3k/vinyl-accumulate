@@ -109,8 +109,17 @@ Passes through all the input. Appends accumulated files to each file at the give
 - @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
 - @param {string} options.property The property to set the file list
 
+## accumulate.src(glob, options)
+Create vinyl stream from the given glob pattern. Appends accumulated files to each of them.
+
+- @param {string} glob The glob pattern. Required.
+- @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
+- @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
+- @param {string} options.property The property to set the file list
+
 # History
 
+- 2016-10-29   v1.3.0   Added src method.
 - 2016-10-23   v1.2.0   Added sort option.
 
 # License
