@@ -87,8 +87,7 @@ const accumulate = (generateFiles, options) => {
         try {
           accumulated.sort(sortFunc)
         } catch (e) {
-          cb(e)
-          return
+          return cb(e)
         }
       }
 

@@ -4,12 +4,14 @@ const accumulate = require('./')
 const gulp = require('vinyl-fs')
 const Vinyl = require('vinyl')
 const fm = require('gulp-front-matter')
+const concat = require('concat-stream')
 
 test('it accumulates the files in `files` property', t => {
   t.plan(5)
 
   gulp.src('test/fixture/*.md')
     .pipe(accumulate('index.html'))
+    .on('error', e => console.log(e.stack))
     .on('data', file => {
       t.equal(file.contents.length, 0)
       t.ok(Array.isArray(file.files))
@@ -89,11 +91,12 @@ test('If the sort option is given and it throws while sorting, then the stream e
 })
 
 test('accumulate.src accumulates the files and create new streams from the given glob pattern', t => {
-  t.plan(1)
+  t.plan(2)
 
   gulp.src('test/fixture/*.md')
     .pipe(accumulate.src('test/fixture/foo.md'))
-    .on('data', file => {
-      t.equal(file.files.length, 2)
-    })
+    .pipe(concat(files => {
+      t.equal(files.length, 1)
+      t.equal(files[0].files.length, 2)
+    }))
 })
