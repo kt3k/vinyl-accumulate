@@ -4,7 +4,6 @@ const accumulate = require('./')
 const gulp = require('vinyl-fs')
 const Vinyl = require('vinyl')
 const fm = require('gulp-front-matter')
-const concat = require('concat-stream')
 
 test('it accumulates the files in `files` property', t => {
   t.plan(5)

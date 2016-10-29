@@ -7,7 +7,6 @@ const values = require('./lib/values')
 const duplexer2 = require('duplexer2')
 const path = require('path')
 const vfs = require('vinyl-fs')
-const concate = require('concat-stream')
 
 const PROPERTY_NAME = 'files'
 const objectMode = true
