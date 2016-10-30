@@ -1,10 +1,13 @@
 'use strict'
 const test = require('tape')
-const accumulate = require('./')
+const stream = require('stream')
 const gulp = require('vinyl-fs')
 const Vinyl = require('vinyl')
 const fm = require('gulp-front-matter')
 const concat = require('concat-stream')
+const debouncer = require('./lib/stream-debouncer')
+
+const accumulate = require('./')
 
 test('it accumulates the files in `files` property', t => {
   t.plan(5)
@@ -115,4 +118,26 @@ test('accumulate.src accumulates the files and create new streams from the given
       t.equal(files.length, 1)
       t.equal(files[0].files.length, 2)
     }))
+})
+
+test('it does not error if the upstream is empty', t => {
+  t.plan(1)
+
+  const readable = new stream.Readable({objectMode: true})
+
+  readable
+    .pipe(accumulate('test.txt'))
+    .pipe(concat(files => {
+      t.equal(files.length, 0)
+    }))
+
+  readable.push(null)
+})
+
+test('debouncer does not throw if called without params', t => {
+  t.plan(1)
+
+  debouncer()
+
+  t.pass('debouncer did not throw')
 })
