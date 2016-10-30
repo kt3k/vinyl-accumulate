@@ -1,4 +1,4 @@
-# vinyl-accumulate v1.3.2
+# vinyl-accumulate v1.4.0
 
 [![CircleCI](https://circleci.com/gh/kt3k/vinyl-accumulate.svg?style=svg)](https://circleci.com/gh/kt3k/vinyl-accumulate)
 [![codecov](https://codecov.io/gh/kt3k/vinyl-accumulate/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/vinyl-accumulate)
@@ -125,6 +125,7 @@ Create vinyl stream from the given glob pattern. Appends accumulated files to ea
 
 # History
 
+- 2016-10-30   v1.4.0   Added filter option.
 - 2016-10-29   v1.3.0   Added src method.
 - 2016-10-23   v1.2.0   Added sort option.
 
