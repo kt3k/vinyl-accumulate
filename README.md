@@ -101,6 +101,8 @@ Accumulates the input files and outputs an empty file with the collected files a
 - @param {string} [options.property] The name of the property of accumulated files. Default is `files`.
 - @param {boolean} [options.debounce] If true, then this stream debounces the input, accumulates them while they are streaming continuously and finally outputs it when the stream stops streaming for a while (= `debounceDuration`). If false, it accumulates all the files until the end of the stream and output only once at the end. Default is false. This option is useful when you handle the vinyl stream which never ends (like in [bulbo][bulbo]).
 - @param {number} [options.debounceDuration] The duration of debounce in milliseconds. This only has effects when `debounce` option is true. Default is 500.
+- @param {Function} [options.sort] The sort function. If given, the accumulated files are sorted by this function. Optional.
+- @param {Function} [options.filter] The filter function. If given, the accumulated files are filtered by this function. Optional.
 
 ## accumulate.through(options)
 Passes through all the input. Appends accumulated files to each file at the given property name (default 'files')
@@ -108,6 +110,8 @@ Passes through all the input. Appends accumulated files to each file at the give
 - @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
 - @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
 - @param {string} options.property The property to set the file list
+- @param {Function} [options.sort] The sort function. If given, the accumulated files are sorted by this function. Optional.
+- @param {Function} [options.filter] The filter function. If given, the accumulated files are filtered by this function. Optional.
 
 ## accumulate.src(glob, options)
 Create vinyl stream from the given glob pattern. Appends accumulated files to each of them.
@@ -116,6 +120,8 @@ Create vinyl stream from the given glob pattern. Appends accumulated files to ea
 - @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
 - @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
 - @param {string} options.property The property to set the file list
+- @param {Function} [options.sort] The sort function. If given, the accumulated files are sorted by this function. Optional.
+- @param {Function} [options.filter] The filter function. If given, the accumulated files are filtered by this function. Optional.
 
 # History
 

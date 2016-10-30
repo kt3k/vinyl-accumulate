@@ -90,6 +90,22 @@ test('If the sort option is given and it throws while sorting, then the stream e
     })
 })
 
+test('If the filter option is giveng, the accumulated files are filtered by it', t => {
+  t.plan(3)
+
+  gulp.src('test/fixture/*.md')
+    .pipe(fm({property: 'fm'}))
+    .pipe(accumulate('test.html', {filter: f => f.fm.name === 'bar'}))
+    .pipe(concat(files => {
+      t.equal(files.length, 1)
+
+      const file = files[0]
+
+      t.equal(file.files.length, 1)
+      t.equal(file.files[0].fm.name, 'bar')
+    }))
+})
+
 test('accumulate.src accumulates the files and create new streams from the given glob pattern', t => {
   t.plan(2)
 

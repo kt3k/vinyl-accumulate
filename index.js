@@ -17,7 +17,8 @@ const objectMode = true
  * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
  * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
  * @param {string} property The property name which the accumulated files are set to.
- * @param {Function} sort The sort function. If specified, then the accumulated files are sorted by this function. Optional.
+ * @param {Function} sort The sort function. If given, the accumulated files are sorted by this function. Optional.
+ * @param {Function} filter The filter function. If given, the accumulated files are filtered by this function. Optional.
  */
 const one = (filename, options) => {
   if (typeof filename !== 'string') {
@@ -37,7 +38,8 @@ const one = (filename, options) => {
  * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
  * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
  * @param {string} options.property The property to set the file list
- * @param {Function} sort The sort function. If specified, then the accumulated files are sorted by this function. Optional.
+ * @param {Function} sort The sort function. If given, the accumulated files are sorted by this function. Optional.
+ * @param {Function} filter The filter function. If given, the accumulated files are filtered by this function. Optional.
  */
 const through = options => accumulate(files => files, options)
 
@@ -47,14 +49,15 @@ const through = options => accumulate(files => files, options)
  * @param {boolean} debounce If true then it debounce the inputs and outputs after `debounceDuration`. If false, it only outputs at the end of the stream. Default is false
  * @param {number} debounceDuration The duration of the debounce. This takes effects only when debounce option is true.
  * @param {string} property The property name which the accumulated files are set to.
- * @param {Function} sort The sort function. If specified, then the accumulated files are sorted by this function. Optional.
+ * @param {Function} sort The sort function. If given, the accumulated files are sorted by this function. Optional.
+ * @param {Function} filter The filter function. If given, the accumulated files are filtered by this function. Optional.
  */
 const src = (glob, optioins) => accumulate(files => {
   return new Promise((resolve, reject) => {
     vfs.src(glob)
       .pipe(one('dummy-file'))
       .on('data', file => resolve(file.files))
-      .on('error', e => reject(e))
+      .on('error', reject)
   })
 })
 
@@ -69,6 +72,7 @@ const accumulate = (generateFiles, options) => {
   const duration = options.debounce ? options.debounceDuration : Infinity
   const property = options.property || PROPERTY_NAME
   const sortFunc = options.sort
+  const filterFunc = options.filter
 
   const input = stream.Transform({
     objectMode,
@@ -81,14 +85,18 @@ const accumulate = (generateFiles, options) => {
   const output = stream.Transform({
     objectMode,
     transform (lastFile, enc, cb) {
-      const accumulated = values(files)
+      let accumulated = values(files)
 
-      if (sortFunc) {
-        try {
+      try {
+        if (sortFunc) {
           accumulated.sort(sortFunc)
-        } catch (e) {
-          return cb(e)
         }
+
+        if (filterFunc) {
+          accumulated = accumulated.filter(filterFunc)
+        }
+      } catch (e) {
+        return cb(e)
       }
 
       Promise.resolve(generateFiles(accumulated, lastFile)).then(files => {
@@ -96,9 +104,7 @@ const accumulate = (generateFiles, options) => {
           // Creates the shallow copy of the accumulated each time just in case
           this.push(Object.assign(file.clone(), {[property]: accumulated.slice(0)}))
         })
-
-        cb()
-      }).catch(cb)
+      }).then(cb).catch(cb)
     }
   })
 
