@@ -1,5 +1,7 @@
 # vinyl-accumulate v1.4.1
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/kt3k/vinyl-accumulate.svg)](https://greenkeeper.io/)
+
 [![CircleCI](https://circleci.com/gh/kt3k/vinyl-accumulate.svg?style=svg)](https://circleci.com/gh/kt3k/vinyl-accumulate)
 [![codecov](https://codecov.io/gh/kt3k/vinyl-accumulate/branch/master/graph/badge.svg)](https://codecov.io/gh/kt3k/vinyl-accumulate)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
